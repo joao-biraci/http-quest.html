@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Quest: O Guardião da Web</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* HUD Superior */
+        #hud {
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            border-bottom: 3px solid #00ff88;
+        }
+        
+        .hud-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .hp-bar, .xp-bar {
+            width: 150px;
+            height: 20px;
+            background: #333;
+            border: 2px solid #fff;
+            position: relative;
+        }
+        
+        .hp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ff8844);
+            width: 100%;
+            transition: width 0.3s;
+        }
+        
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4488ff, #8844ff);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .lock-icon {
+            font-size: 24px;
+            transition: all 0.3s;
+        }
+        
+        .locked { color: #ff4444; }
+        .unlocked { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
+        
+        /* Área do Jogo */
+        #gameWorld {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #90EE90 50%, #228B22 100%);
+        }
+        
+        /* Cenário */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(180deg, #7CB342 0%, #558B2F 100%);
+        }
+        
+        .path {
+            position: absolute;
+            bottom: 20%;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(180deg, #D7CCC8 0%, #A1887F 100%);
+            border-top: 3px solid #8D6E63;
+            border-bottom: 3px solid #8D6E63;
+        }
+        
+        /* Personagens */
+        .character {
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .character:hover {
+            transform: scale(1.1);
+        }
+        
+        .client-char {
+            bottom: 25%;
+            left: 10%;
+            background: linear-gradient(135deg, #4285F4, #34A853);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            animation: float 2s ease-in-out infinite;
+        }
+        
+        .server-char {
+            bottom: 25%;
+            right: 10%;
+            background: linear-gradient(135deg, #EA4335, #FBBC05);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .hacker-char {
+            bottom: 25%;
+            left: 45%;
+            background: linear-gradient(135deg, #000000, #434343);
+            border-radius: 50%;
+            border: 3px solid #ff0000;
+            box-shadow: 0 0 20px rgba(255,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .hacker-visible { opacity: 1; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Mensagens/Protocolos */
+        .message-bubble {
+            position: absolute;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 15px;
+            border: 2px solid #333;
+            font-size: 12px;
+            max-width: 200px;
+            opacity: 0;
+            transition: all 0.5s;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .message-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 10px solid transparent;
+            border-top-color: white;
+        }
+        
+        .message-visible { opacity: 1; }
+        
+        /* Pacotes de Dados */
+        .packet {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border: 2px solid #FF8C00;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.1s linear;
+            z-index: 50;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .packet.encrypted {
+            background: linear-gradient(135deg, #00CED1, #20B2AA);
+            border-color: #008B8B;
+        }
+        
+        .packet.corrupted {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            border-color: #990000;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        /* Barra de Endereço */
+        .address-bar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 40px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 2px solid #ddd;
+        }
+        
+        .protocol {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .http { background: #ff4444; color: white; }
+        .https { background: #00ff88; color: black; }
+        
+        .url-text {
+            flex: 1;
+            font-family: monospace;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        /* Painel de Controle/Quest */
+        #questPanel {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            line-height: 1.8;
+        }
+        
+        .quest-title {
+            color: #FFD700;
+            margin-bottom: 15px;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .quest-step {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            border-left: 3px solid #666;
+        }
+        
+        .quest-step.active {
+            border-left-color: #00ff88;
+            background: rgba(0,255,136,0.2);
+        }
+        
+        .quest-step.completed {
+            border-left-color: #FFD700;
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        /* Modal de Minigame */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid #00ff88;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            color: white;
+            text-align: center;
+        }
+        
+        .modal-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 18px;
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+        
+        .cipher-wheel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .key-option {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 3px solid white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .key-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .key-option.selected {
+            border-color: #00ff88;
+            box-shadow: 0 0 30px #00ff88;
+        }
+        
+        .key-option.wrong {
+            border-color: #ff4444;
+            animation: shake 0.5s;
+        }
+        
+        .timer-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #FFD700);
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Área de Log/Depuração */
+        #debugConsole {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 15px;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 2px solid #00ff88;
+            padding-left: 10px;
+        }
+        
+        .log-error { color: #ff4444; border-left-color: #ff4444; }
+        .log-success { color: #00ff88; border-left-color: #00ff88; }
+        .log-info { color: #FFD700; border-left-color: #FFD700; }
+        
+        /* Animação de Handshake */
+        .handshake-visual {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 200;
+        }
+        
+        .handshake-visual.active {
+            display: block;
+        }
+        
+        .ssl-shield {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            animation: shieldPulse 1s ease-in-out infinite;
+            box-shadow: 0 0 50px rgba(0,255,136,0.5);
+        }
+        
+        @keyframes shieldPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        
+        /* Partículas */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: particleFloat 1s ease-out forwards;
+        }
+        
+        @keyframes particleFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0); opacity: 0; }
+        }
+        
+        /* Tutorial Overlay */
+        #tutorial {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .tutorial-content {
+            max-width: 800px;
+            padding: 40px;
+        }
+        
+        .tutorial h1 {
+            font-family: 'Press Start 2P', cursive;
+            color: #00ff88;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        
+        .tutorial p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin: 20px 0;
+        }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- HUD -->
+        <div id="hud">
+            <div class="hud-section">
+                <span>HP:</span>
+                <div class="hp-bar">
+                    <div class="hp-fill" id="hpBar"></div>
+                </div>
+            </div>
+            <div class="hud-section">
+                <span class="lock-icon locked" id="lockIcon">🔒</span>
+                <span id="connectionStatus">HTTP (Inseguro)</span>
+            </div>
+            <div class="hud-section">
+                <span>XP:</span>
+                <div class="xp-bar">
+                    <div class="xp-fill" id="xpBar"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mundo do Jogo -->
+        <div id="gameWorld">
+            <div class="ground"></div>
+            <div class="path"></div>
+            
+            <!-- Barra de Endereço -->
+            <div class="address-bar">
+                <span class="protocol http" id="protocolBadge">HTTP</span>
+                <span class="url-text" id="urlText">http://www.site-inseguro.com</span>
+            </div>
+            
+            <!-- Painel de Quest -->
+            <div id="questPanel">
+                <div class="quest-title">🌐 MISSÃO: SEGURANÇA WEB</div>
+                <div class="quest-step active" id="step1">1. Iniciar Handshake SSL</div>
+                <div class="quest-step" id="step2">2. Trocar Certificado Digital</div>
+                <div class="quest-step" id="step3">3. Criptografar Dados</div>
+                <div class="quest-step" id="step4">4. Proteger contra Hackers</div>
+            </div>
+            
+            <!-- Personagens -->
+            <div class="character client-char" id="client" title="Cliente (Navegador)">🖥️</div>
+            <div class="character server-char" id="server" title="Servidor">🖧</div>
+            <div class="character hacker-char" id="hacker" title="Hacker">👤</div>
+            
+            <!-- Bubbles de mensagem -->
+            <div class="message-bubble" id="clientMsg" style="left: 10%; bottom: 40%;"></div>
+            <div class="message-bubble" id="serverMsg" style="right: 10%; bottom: 40%;"></div>
+            
+            <!-- Visual do Handshake -->
+            <div class="handshake-visual" id="handshakeVisual">
+                <div class="ssl-shield">🛡️</div>
+            </div>
+            
+            <!-- Console de Debug -->
+            <div id="debugConsole">
+                <div class="log-entry log-info">Sistema iniciado...</div>
+                <div class="log-entry">Aguardando conexão...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal do Minigame de Criptografia -->
+    <div class="modal" id="cryptoModal">
+        <div class="modal-content">
+            <div class="modal-title">🔐 DESAFIO DE CRIPTOGRAFIA</div>
+            <p id="cryptoChallenge">Intercepte a mensagem e escolha a chave correta para descriptografar!</p>
+            <div class="cipher-wheel" id="keyOptions">
+                <div class="key-option" data-key="1">🔑 A</div>
+                <div class="key-option" data-key="2">🔑 B</div>
+                <div class="key-option" data-key="3">🔑 C</div>
+            </div>
+            <div class="timer-bar">
+                <div class="timer-fill" id="timerBar"></div>
+            </div>
+            <p>Tempo restante: <span id="timerText">10</span>s</p>
+        </div>
+    </div>
+    
+    <!-- Modal de Handshake -->
+    <div class="modal" id="handshakeModal">
+        <div class="modal-content">
+            <div class="modal-title">🤝 HANDSHAKE SSL/TLS</div>
+            <p>O Cliente está solicitando uma conexão segura...</p>
+            <div id="handshakeSteps" style="margin: 20px 0; text-align: left; line-height: 2;">
+                <div id="hs1">⏳ Cliente: "Client Hello" (Lista de cifras suportadas)</div>
+                <div id="hs2">⏳ Servidor: "Server Hello" + Certificado Digital</div>
+                <div id="hs3">⏳ Cliente: Verifica certificado e gera chave de sessão</div>
+                <div id="hs4">⏳ Servidor: Confirmação, conexão segura estabelecida!</div>
+            </div>
+            <button class="btn" onclick="startHandshake()">Iniciar Handshake</button>
+        </div>
+    </div>
+    
+    <!-- Tutorial Inicial -->
+    <div id="tutorial">
+        <div class="tutorial-content">
+            <h1>🌐 HTTP QUEST: O GUARDIÃO DA WEB</h1>
+            <p>Bem-vindo, Guardião! Você foi escolhido para proteger a comunicação entre Cliente e Servidor.</p>
+            <p>Sua missão é transformar uma conexão HTTP insegura em uma conexão HTTPS segura através do protocolo SSL/TLS.</p>
+            <p><strong>Objetivos:</strong><br>
+            🛡️ Estabelecer o Handshake de segurança<br>
+            🔐 Criptografar dados sensíveis<br>
+            🚫 Proteger contra interceptações maliciosas</p>
+            <button class="btn" onclick="startGame()">INICIAR MISSÃO</button>
+        </div>
+    </div>
+
+    <script>
+        // Estado do Jogo
+        const gameState = {
+            currentStep: 1,
+            isSecure: false,
+            hp: 100,
+            xp: 0,
+            encrypted: false,
+            keysExchanged: false,
+            timer: null,
+            currentKey: null
+        };
+        
+        // Elementos DOM
+        const client = document.getElementById('client');
+        const server = document.getElementById('server');
+        const hacker = document.getElementById('hacker');
+        const clientMsg = document.getElementById('clientMsg');
+        const serverMsg = document.getElementById('serverMsg');
+        const debugConsole = document.getElementById('debugConsole');
+        const lockIcon = document.getElementById('lockIcon');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const protocolBadge = document.getElementById('protocolBadge');
+        const urlText = document.getElementById('urlText');
+        
+        // Logger
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            debugConsole.appendChild(entry);
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+        }
+        
+        // Criar partículas visuais
+        function createParticle(x, y, emoji) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = emoji;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            particle.style.fontSize = '24px';
+            document.getElementById('gameWorld').appendChild(particle);
+            setTimeout(() => particle.remove(), 1000);
+        }
+        
+        // Mostrar mensagem em bubble
+        function showMessage(element, text, duration = 3000) {
+            element.textContent = text;
+            element.classList.add('message-visible');
+            setTimeout(() => {
+                element.classList.remove('message-visible');
+            }, duration);
+        }
+        
+        // Criar pacote de dados animado
+        function createPacket(startX, startY, endX, endY, isEncrypted = false, intercepted = false) {
+            const packet = document.createElement('div');
+            packet.className = `packet ${isEncrypted ? 'encrypted' : ''}`;
+            packet.textContent = isEncrypted ? '🔒' : '📦';
+            packet.style.left = startX + 'px';
+            packet.style.top = startY + 'px';
+            document.getElementById('gameWorld').appendChild(packet);
+            
+            // Animação
+            const duration = 2000;
+            const startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const currentX = startX + (endX - startX) * progress;
+                const currentY = startY + (endY - startY) * progress;
+                
+                packet.style.left = currentX + 'px';
+                packet.style.top = currentY + 'px';
+                
+                // Ponto de interceptação (meio do caminho)
+                if (intercepted && progress > 0.4 && progress < 0.6 && !packet.classList.contains('corrupted')) {
+                    if (!isEncrypted) {
+                        packet.classList.add('corrupted');
+                        packet.textContent = '💀';
+                        createParticle(currentX, currentY, '⚠️');
+                        log('ALERTA: Pacote interceptado pelo Hacker!', 'error');
+                        gameState.hp -= 20;
+                        updateHUD();
+                    } else {
+                        createParticle(currentX, currentY, '🛡️');
+                        log('Hacker tentou interceptar, mas dados estão criptografados!', 'success');
+                        gameState.xp += 10;
+                        updateHUD();
+                    }
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    packet.remove();
+                    if (!intercepted || isEncrypted) {
+                        createParticle(endX, endY, '✨');
+                    }
+                }
+            }
+            
+            animate();
+        }
+        
+        // Atualizar HUD
+        function updateHUD() {
+            document.getElementById('hpBar').style.width = gameState.hp + '%';
+            document.getElementById('xpBar').style.width = gameState.xp + '%';
+            
+            if (gameState.hp <= 0) {
+                gameOver();
+            }
+        }
+        
+        // Atualizar steps da quest
+        function updateQuestSteps() {
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById('step' + i);
+                step.classList.remove('active', 'completed');
+                if (i < gameState.currentStep) {
+                    step.classList.add('completed');
+                } else if (i === gameState.currentStep) {
+                    step.classList.add('active');
+                }
+            }
+        }
+        
+        // Iniciar jogo
+        function startGame() {
+            document.getElementById('tutorial').classList.add('hidden');
+            log('Missão iniciada! Protocolo HTTP detectado.', 'info');
+            showMessage(clientMsg, 'Olá, quero uma conexão...', 3000);
+            
+            setTimeout(() => {
+                showMessage(serverMsg, 'Conexão HTTP estabelecida', 3000);
+                log('Conexão HTTP estabelecida (insegura)', 'error');
+                setTimeout(startHTTPScenario, 2000);
+            }, 2000);
+        }
+        
+        // Cenário HTTP (inseguro)
+        function startHTTPScenario() {
+            hacker.classList.add('hacker-visible');
+            log('AVISO: Hacker detectado na rede!', 'error');
+            
+            // Enviar pacotes inseguros
+            setTimeout(() => {
+                createPacket(
+                    client.offsetLeft + 32, 
+                    client.offsetTop, 
+                    server.offsetLeft + 32, 
+                    server.offsetTop, 
+                    false, 
+                    true
+                );
+                log('Enviando dados em texto plano...', 'info');
+            }, 1000);
+            
+            setTimeout(() => {
+                showMessage(clientMsg, 'Vamos proteger isso?', 3000);
+                document.getElementById('handshakeModal').classList.add('active');
+            }, 4000);
+        }
+        
+        // Iniciar Handshake
+        function startHandshake() {
+            document.getElementById('handshakeModal').classList.remove('active');
+            document.getElementById('handshakeVisual').classList.add('active');
+            
+            log('Iniciando Handshake SSL/TLS...', 'info');
+            
+            const steps = [
+                { id: 'hs1', delay: 500, msg: 'Client Hello enviado' },
+                { id: 'hs2', delay: 1500, msg: 'Server Hello + Certificado recebido' },
+                { id: 'hs3', delay: 2500, msg: 'Chave de sessão gerada' },
+                { id: 'hs4', delay: 3500, msg: 'Handshake completo!' }
+            ];
+            
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    document.getElementById(step.id).innerHTML = '✅ ' + document.getElementById(step.id).textContent.substring(2);
+                    log(step.msg, 'success');
+                    
+                    if (index === steps.length - 1) {
+                        setTimeout(completeHandshake, 1000);
+                    }
+                }, step.delay);
+            });
+        }
+        
+        // Completar Handshake
+        function completeHandshake() {
+            document.getElementById('handshakeVisual').classList.remove('active');
+            gameState.isSecure = true;
+            gameState.keysExchanged = true;
+            gameState.currentStep = 3;
+            updateQuestSteps();
+            
+            // Atualizar UI
+            lockIcon.textContent = '🔐';
+            lockIcon.classList.remove('locked');
+            lockIcon.classList.add('unlocked');
+            connectionStatus.textContent = 'HTTPS (Seguro)';
+            protocolBadge.textContent = 'HTTPS';
+            protocolBadge.classList.remove('http');
+            protocolBadge.classList.add('https');
+            urlText.textContent = 'https://www.site-seguro.com';
+            
+            log('Conexão HTTPS estabelecida com sucesso!', 'success');
+            gameState.xp += 30;
+            updateHUD();
+            
+            setTimeout(startEncryptionChallenge, 2000);
+        }
+        
+        // Desafio de Criptografia
+        function startEncryptionChallenge() {
+            document.getElementById('cryptoModal').classList.add('active');
+            
+            const challengeText = "Mensagem secreta: SENHA123";
+            const encrypted = btoa(challengeText); // Simulação simples de criptografia
+            document.getElementById('cryptoChallenge').textContent = 
+                `Dados interceptados: "${encrypted}"\nEscolha a chave correta para descriptografar!`;
+            
+            // Configurar timer
+            let timeLeft = 10;
+            const correctKey = Math.floor(Math.random() * 3) + 1;
+            gameState.currentKey = correctKey;
+            
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerBar').style.width = (timeLeft * 10) + '%';
+                document.getElementById('timerText').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    encryptionFailed();
+                }
+            }, 1000);
+            
+            gameState.timer = timerInterval;
+            
+            // Configurar opções de chave
+            document.querySelectorAll('.key-option').forEach((option, index) => {
+                option.onclick = () => checkKey(index + 1, correctKey);
+            });
+        }
+        
+        // Verificar chave
+        function checkKey(selected, correct) {
+            clearInterval(gameState.timer);
+            
+            if (selected === correct) {
+                document.querySelectorAll('.key-option')[selected - 1].classList.add('selected');
+                setTimeout(() => {
+                    document.getElementById('cryptoModal').classList.remove('active');
+                    encryptionSuccess();
+                }, 1000);
+            } else {
+                document.querySelectorAll('.key-option')[selected - 1].classList.add('wrong');
+                gameState.hp -= 10;
+                updateHUD();
+                log('Chave incorreta! Tentativa de descriptografia falhou.', 'error');
+            }
+        }
+        
+        // Sucesso na criptografia
+        function encryptionSuccess() {
+            gameState.encrypted = true;
+            gameState.currentStep = 4;
+            updateQuestSteps();
+            gameState.xp += 40;
+            updateHUD();
+            
+            log('Sistema de criptografia ativado!', 'success');
+            showMessage(serverMsg, 'Dados protegidos! 🛡️', 3000);
+            
+            setTimeout(startSecureTransmission, 2000);
+        }
+        
+        // Falha na criptografia
+        function encryptionFailed() {
+            document.getElementById('cryptoModal').classList.remove('active');
+            gameState.hp -= 30;
+            updateHUD();
+            log('Tempo esgotado! Vulnerabilidade detectada.', 'error');
+            
+            setTimeout(() => {
+                startEncryptionChallenge(); // Tentar novamente
+            }, 2000);
+        }
+        
+        // Transmissão segura
+        function startSecureTransmission() {
+            log('Iniciando transmissão segura de dados...', 'info');
+            
+            // Enviar múltiplos pacotes criptografados
+            let packetCount = 0;
+            const interval = setInterval(() => {
+                createPacket(
+                    client.offsetLeft + 32,
+                    client.offsetTop,
+                    server.offsetLeft + 32,
+                    server.offsetTop,
+                    true,
+                    true
+                );
+                
+                packetCount++;
+                if (packetCount >= 5) {
+                    clearInterval(interval);
+                    setTimeout(gameComplete, 3000);
+                }
+            }, 1500);
+            
+            // Resposta do servidor
+            setTimeout(() => {
+                showMessage(serverMsg, 'Dados recebidos com segurança!', 3000);
+            }, 2000);
+        }
+        
+        // Jogo completo
+        function gameComplete() {
+            gameState.currentStep = 5;
+            updateQuestSteps();
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-title">🎉 MISSÃO CUMPRIDA!</div>
+                    <p>Você protegeu com sucesso a comunicação entre Cliente e Servidor!</p>
+                    <p>HP Final: ${gameState.hp}% | XP Ganho: ${gameState.xp}</p>
+                    <p style="margin: 20px 0; line-height: 1.8;">
+                        ✅ Handshake SSL/TLS estabelecido<br>
+                        ✅ Certificado digital validado<br>
+                        ✅ Criptografia ativada<br>
+                        ✅ Dados protegidos contra hackers
+                    </p>
+                    <button class="btn" onclick="location.reload()">JOGAR NOVAMENTE</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            log('MISSÃO CUMPRIDA! Sistema seguro estabelecido.', 'success');
+        }
+        
+        // Game Over
+        function gameOver() {
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-title" style="color: #ff4444;">💀 FALHA NA MISSÃO</div>
+                    <p>O sistema foi comprometido!</p>
+                    <p>O Hacker conseguiu interceptar dados sensíveis.</p>
+                    <button class="btn" onclick="location.reload()">TENTAR NOVAMENTE</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        // Interações de clique nos personagens
+        client.addEventListener('click', () => {
+            showMessage(clientMsg, 'Sou o Cliente! Preciso de segurança!', 2000);
+        });
+        
+        server.addEventListener('click', () => {
+            showMessage(serverMsg, 'Sou o Servidor! Aguardando conexão segura...', 2000);
+        });
+        
+        hacker.addEventListener('click', () => {
+            log('Hacker: "Hehe, dados em texto plano são meus!"', 'error');
+            createParticle(hacker.offsetLeft + 32, hacker.offsetTop, '👤');
+        });
+    </script>
+</body>
+</html>

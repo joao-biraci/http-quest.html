@@ -276,30 +276,33 @@
             position: absolute;
             top: 80px;
             left: 20px;
-            width: 300px;
+            width: 320px;
             background: rgba(0, 0, 0, 0.9);
             border: 3px solid #00ff88;
             border-radius: 10px;
             padding: 20px;
             color: white;
             font-family: 'Press Start 2P', cursive;
-            font-size: 10px;
-            line-height: 1.8;
+            font-size: 9px;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
         }
         
         .quest-title {
             color: #FFD700;
             margin-bottom: 15px;
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
         }
         
         .quest-step {
-            margin: 10px 0;
-            padding: 10px;
+            margin: 8px 0;
+            padding: 8px;
             background: rgba(255,255,255,0.1);
             border-radius: 5px;
             border-left: 3px solid #666;
+            font-size: 8px;
         }
         
         .quest-step.active {
@@ -336,15 +339,17 @@
             border: 3px solid #00ff88;
             border-radius: 15px;
             padding: 30px;
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
             color: white;
             text-align: center;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         
         .modal-title {
             font-family: 'Press Start 2P', cursive;
-            font-size: 18px;
+            font-size: 16px;
             color: #FFD700;
             margin-bottom: 20px;
         }
@@ -527,6 +532,164 @@
         }
         
         .hidden { display: none !important; }
+        
+        /* Novos estilos para as fases educacionais */
+        .edu-content {
+            text-align: left;
+            margin: 20px 0;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+        
+        .edu-content h3 {
+            color: #00ff88;
+            margin: 15px 0 10px 0;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+        }
+        
+        .edu-content ul {
+            margin-left: 20px;
+        }
+        
+        .edu-content li {
+            margin: 8px 0;
+        }
+        
+        .code-block {
+            background: #000;
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #00ff88;
+            text-align: left;
+            overflow-x: auto;
+        }
+        
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .method-card {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #666;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .method-card:hover {
+            border-color: #00ff88;
+            transform: translateY(-2px);
+        }
+        
+        .method-card.selected {
+            border-color: #00ff88;
+            background: rgba(0,255,136,0.2);
+        }
+        
+        .method-card h4 {
+            color: #FFD700;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .url-builder {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .url-part {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .url-part:hover {
+            border-color: #00ff88;
+        }
+        
+        .url-part.correct {
+            border-color: #00ff88;
+            background: rgba(0,255,136,0.2);
+        }
+        
+        .url-part.wrong {
+            border-color: #ff4444;
+            animation: shake 0.5s;
+        }
+        
+        .param-input {
+            background: #000;
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            width: 100%;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #666;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        
+        .quiz-option:hover {
+            border-color: #00ff88;
+            transform: translateX(10px);
+        }
+        
+        .quiz-option.correct {
+            border-color: #00ff88;
+            background: rgba(0,255,136,0.3);
+        }
+        
+        .quiz-option.wrong {
+            border-color: #ff4444;
+            background: rgba(255,68,68,0.3);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #FFD700);
+            width: 0%;
+            transition: width 0.5s;
+        }
     </style>
 </head>
 <body>
@@ -564,11 +727,17 @@
             
             <!-- Painel de Quest -->
             <div id="questPanel">
-                <div class="quest-title">🌐 MISSÃO: SEGURANÇA WEB</div>
-                <div class="quest-step active" id="step1">1. Iniciar Handshake SSL</div>
-                <div class="quest-step" id="step2">2. Trocar Certificado Digital</div>
-                <div class="quest-step" id="step3">3. Criptografar Dados</div>
-                <div class="quest-step" id="step4">4. Proteger contra Hackers</div>
+                <div class="quest-title">🌐 JORNADA HTTP</div>
+                <div class="quest-step active" id="step1">1. O que é HTTP?</div>
+                <div class="quest-step" id="step2">2. Web Segura: HTTPS</div>
+                <div class="quest-step" id="step3">3. Endereços e Domínios</div>
+                <div class="quest-step" id="step4">4. Cliente-Servidor</div>
+                <div class="quest-step" id="step5">5. Depurando Requisições</div>
+                <div class="quest-step" id="step6">6. Parâmetros HTTP</div>
+                <div class="quest-step" id="step7">7. Handshake SSL</div>
+                <div class="quest-step" id="step8">8. Certificado Digital</div>
+                <div class="quest-step" id="step9">9. Criptografia</div>
+                <div class="quest-step" id="step10">10. Proteção Final</div>
             </div>
             
             <!-- Personagens -->
@@ -621,7 +790,238 @@
                 <div id="hs3">⏳ Cliente: Verifica certificado e gera chave de sessão</div>
                 <div id="hs4">⏳ Servidor: Confirmação, conexão segura estabelecida!</div>
             </div>
-            <button class="btn" onclick="startHandshake()">Iniciar Handshake</button>
+            <button class="btn" onclick="startHandshakeProcess()">Iniciar Handshake</button>
+        </div>
+    </div>
+    
+    <!-- FASE 1: O que é HTTP? -->
+    <div class="modal" id="phase1Modal">
+        <div class="modal-content">
+            <div class="modal-title">📚 FASE 1: O QUE É HTTP?</div>
+            <div class="edu-content">
+                <p>HTTP (HyperText Transfer Protocol) é o protocolo fundamental da Web. É como os navegadores e servidores conversam!</p>
+                
+                <h3>🎯 Características do HTTP:</h3>
+                <ul>
+                    <li><strong>Protocolo:</strong> Conjunto de regras para comunicação</li>
+                    <li><strong>Stateless:</strong> Cada requisição é independente</li>
+                    <li><strong>Cliente-Servidor:</strong> Navegador pede, servidor responde</li>
+                    <li><strong>Texto Puro:</strong> Dados transmitidos sem criptografia</li>
+                </ul>
+                
+                <h3>📝 Quiz Rápido:</h3>
+                <p>O que significa HTTP?</p>
+                <button class="quiz-option" onclick="checkPhase1Answer(this, false)">A) HyperText Transfer Process</button>
+                <button class="quiz-option" onclick="checkPhase1Answer(this, true)">B) HyperText Transfer Protocol</button>
+                <button class="quiz-option" onclick="checkPhase1Answer(this, false)">C) HighText Transfer Protocol</button>
+            </div>
+            <div id="phase1Next" style="display:none;">
+                <button class="btn" onclick="completePhase1()">Continuar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FASE 2: HTTPS -->
+    <div class="modal" id="phase2Modal">
+        <div class="modal-content">
+            <div class="modal-title">🔒 FASE 2: A WEB SEGURA (HTTPS)</div>
+            <div class="edu-content">
+                <p>HTTPS (HTTP Secure) adiciona uma camada de segurança usando criptografia SSL/TLS.</p>
+                
+                <h3>🛡️ Por que usar HTTPS?</h3>
+                <ul>
+                    <li>🔐 Criptografia: Protege dados durante a transmissão</li>
+                    <li>✅ Autenticação: Confirma identidade do servidor</li>
+                    <li>🛡️ Integridade: Evita alteração dos dados</li>
+                    <li>📈 SEO: Google prioriza sites seguros</li>
+                </ul>
+                
+                <div class="code-block">
+                    HTTP:  http://exemplo.com  (Porta 80)<br>
+                    HTTPS: https://exemplo.com (Porta 443) 🔒
+                </div>
+                
+                <h3>🎮 Desafio:</h3>
+                <p>Selecione apenas os benefícios do HTTPS:</p>
+                <div class="method-grid">
+                    <div class="method-card" onclick="toggleBenefit(this, true)">
+                        <h4>🔐 Criptografia</h4>
+                        <small>Dados protegidos</small>
+                    </div>
+                    <div class="method-card" onclick="toggleBenefit(this, false)">
+                        <h4>🚀 Mais Rápido</h4>
+                        <small>Velocidade aumentada</small>
+                    </div>
+                    <div class="method-card" onclick="toggleBenefit(this, true)">
+                        <h4>✅ Autenticação</h4>
+                        <small>Identidade verificada</small>
+                    </div>
+                    <div class="method-card" onclick="toggleBenefit(this, false)">
+                        <h4>💾 Menor Armazenamento</h4>
+                        <small>Menos espaço em disco</small>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" onclick="checkPhase2()">Verificar</button>
+        </div>
+    </div>
+    
+    <!-- FASE 3: Endereços e Domínios -->
+    <div class="modal" id="phase3Modal">
+        <div class="modal-content">
+            <div class="modal-title">🌐 FASE 3: ENDEREÇOS E DOMÍNIOS</div>
+            <div class="edu-content">
+                <p>Uma URL (Uniform Resource Locator) é o endereço completo de um recurso na web.</p>
+                
+                <h3>📍 Estrutura da URL:</h3>
+                <div class="code-block">
+                    https://www.exemplo.com.br:443/pagina? id=123#secao<br>
+                    |------||---|------------|--|---|--------|-----|<br>
+                    Protocolo Sub Domínio  TLD Porta Caminho Query Fragmento
+                </div>
+                
+                <h3>🧩 Monte a URL correta:</h3>
+                <p>Clique nas partes na ordem correta:</p>
+                <div class="url-builder" id="urlBuilder">
+                    <div class="url-part" onclick="selectUrlPart(this, 1)">
+                        <span>🔒</span> https://
+                    </div>
+                    <div class="url-part" onclick="selectUrlPart(this, 2)">
+                        <span>🌐</span> www.
+                    </div>
+                    <div class="url-part" onclick="selectUrlPart(this, 3)">
+                        <span>🏢</span> exemplo
+                    </div>
+                    <div class="url-part" onclick="selectUrlPart(this, 4)">
+                        <span>📍</span> .com
+                    </div>
+                    <div class="url-part" onclick="selectUrlPart(this, 5)">
+                        <span>📄</span> /pagina
+                    </div>
+                </div>
+                <div id="urlProgress" style="margin-top: 10px; color: #00ff88;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FASE 4: Cliente-Servidor -->
+    <div class="modal" id="phase4Modal">
+        <div class="modal-content">
+            <div class="modal-title">🖥️↔️🖧 FASE 4: O CLIENTE PEDE, O SERVIDOR RESPONDE</div>
+            <div class="edu-content">
+                <p>O modelo Cliente-Servidor é a base da web. O Cliente (navegador) faz requisições e o Servidor processa e responde.</p>
+                
+                <h3>🔄 Ciclo de Comunicação:</h3>
+                <div class="code-block">
+                    1. CLIENTE → "GET /pagina HTTP/1.1"<br>
+                    2. SERVIDOR → Processa a requisição<br>
+                    3. SERVIDOR → "HTTP/1.1 200 OK" + Conteúdo<br>
+                    4. CLIENTE → Renderiza a página
+                </div>
+                
+                <h3>🎮 Simulação:</h3>
+                <p>Selecione o método HTTP correto para cada ação:</p>
+                <div style="margin: 20px 0;">
+                    <p><strong>1. Buscar uma página web:</strong></p>
+                    <button class="quiz-option" onclick="checkMethod(this, 'GET', 1)">POST - Enviar dados</button>
+                    <button class="quiz-option" onclick="checkMethod(this, 'GET', 1)">GET - Buscar recurso</button>
+                    <button class="quiz-option" onclick="checkMethod(this, 'GET', 1)">DELETE - Remover recurso</button>
+                </div>
+                <div id="methodFeedback1" style="margin: 10px 0;"></div>
+                
+                <div style="margin: 20px 0;">
+                    <p><strong>2. Enviar formulário de login:</strong></p>
+                    <button class="quiz-option" onclick="checkMethod(this, 'POST', 2)">GET - Buscar recurso</button>
+                    <button class="quiz-option" onclick="checkMethod(this, 'POST', 2)">POST - Enviar dados</button>
+                    <button class="quiz-option" onclick="checkMethod(this, 'POST', 2)">PUT - Atualizar recurso</button>
+                </div>
+                <div id="methodFeedback2" style="margin: 10px 0;"></div>
+            </div>
+            <div id="phase4Next" style="display:none;">
+                <button class="btn" onclick="completePhase4()">Continuar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FASE 5: Depurando Requisições -->
+    <div class="modal" id="phase5Modal">
+        <div class="modal-content">
+            <div class="modal-title">🐛 FASE 5: DEPURANDO REQUISIÇÕES HTTP</div>
+            <div class="edu-content">
+                <p>Ferramentas de desenvolvedor ajudam a analisar o tráfego HTTP e identificar problemas.</p>
+                
+                <h3>📊 Códigos de Status HTTP:</h3>
+                <div class="code-block">
+                    1xx - Informativo (100 Continue)<br>
+                    2xx - Sucesso (200 OK, 201 Created)<br>
+                    3xx - Redirecionamento (301, 302)<br>
+                    4xx - Erro Cliente (404 Not Found, 403 Forbidden)<br>
+                    5xx - Erro Servidor (500 Internal Error, 502 Bad Gateway)
+                </div>
+                
+                <h3>🎮 Desafio de Diagnóstico:</h3>
+                <p>Analise o problema e escolha o código correto:</p>
+                
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p><strong>Cenário 1:</strong> "A página solicitada não existe no servidor"</p>
+                    <button class="quiz-option" onclick="checkStatusCode(this, 404, 1)">200 OK</button>
+                    <button class="quiz-option" onclick="checkStatusCode(this, 404, 1)">404 Not Found</button>
+                    <button class="quiz-option" onclick="checkStatusCode(this, 404, 1)">500 Server Error</button>
+                    <div id="statusFeedback1"></div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p><strong>Cenário 2:</strong> "O servidor entendeu a requisição, mas recusou autorização"</p>
+                    <button class="quiz-option" onclick="checkStatusCode(this, 403, 2)">401 Unauthorized</button>
+                    <button class="quiz-option" onclick="checkStatusCode(this, 403, 2)">403 Forbidden</button>
+                    <button class="quiz-option" onclick="checkStatusCode(this, 403, 2)">503 Service Unavailable</button>
+                    <div id="statusFeedback2"></div>
+                </div>
+            </div>
+            <div id="phase5Next" style="display:none;">
+                <button class="btn" onclick="completePhase5()">Continuar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FASE 6: Parâmetros -->
+    <div class="modal" id="phase6Modal">
+        <div class="modal-content">
+            <div class="modal-title">📋 FASE 6: PARÂMETROS DE REQUISIÇÃO E RESPOSTA</div>
+            <div class="edu-content">
+                <p>Parâmetros permitem enviar e receber dados dinâmicos entre cliente e servidor.</p>
+                
+                <h3>📤 Query String (URL):</h3>
+                <div class="code-block">
+                    GET /busca?q=javascript&ordenar=recente<br>
+                    <br>
+                    q = "javascript"<br>
+                    ordenar = "recente"
+                </div>
+                
+                <h3>📦 Corpo da Requisição (POST):</h3>
+                <div class="code-block">
+                    POST /login HTTP/1.1<br>
+                    Content-Type: application/json<br>
+                    <br>
+                    {<br>
+                    &nbsp;&nbsp;"usuario": "admin",<br>
+                    &nbsp;&nbsp;"senha": "123456"<br>
+                    }
+                </div>
+                
+                <h3>🎮 Desafio:</h3>
+                <p>Monte a query string correta para buscar "games" ordenado por "preco":</p>
+                <div style="margin: 20px 0;">
+                    <input type="text" class="param-input" id="queryInput" placeholder="/busca?...">
+                    <button class="btn" onclick="checkQueryString()">Verificar</button>
+                </div>
+                <div id="queryFeedback"></div>
+                
+                <div style="margin-top: 20px; font-size: 12px; color: #888;">
+                    Dica: Use ? para iniciar e & para separar parâmetros
+                </div>
+            </div>
         </div>
     </div>
     
@@ -630,26 +1030,32 @@
         <div class="tutorial-content">
             <h1>🌐 HTTP QUEST: O GUARDIÃO DA WEB</h1>
             <p>Bem-vindo, Guardião! Você foi escolhido para proteger a comunicação entre Cliente e Servidor.</p>
-            <p>Sua missão é transformar uma conexão HTTP insegura em uma conexão HTTPS segura através do protocolo SSL/TLS.</p>
-            <p><strong>Objetivos:</strong><br>
-            🛡️ Estabelecer o Handshake de segurança<br>
-            🔐 Criptografar dados sensíveis<br>
-            🚫 Proteger contra interceptações maliciosas</p>
-            <button class="btn" onclick="startGame()">INICIAR MISSÃO</button>
+            <p>Sua missão é dominar os protocolos HTTP e HTTPS através de 10 fases educacionais e práticas.</p>
+            <p><strong>O que você vai aprender:</strong><br>
+            📚 Fundamentos do HTTP e HTTPS<br>
+            🌐 Estrutura de URLs e domínios<br>
+            🔄 Ciclo Cliente-Servidor<br>
+            🐛 Depuração e códigos de status<br>
+            📋 Parâmetros e métodos HTTP<br>
+            🛡️ Segurança e criptografia</p>
+            <button class="btn" onclick="startGame()">INICIAR JORNADA</button>
         </div>
     </div>
 
     <script>
-        // Estado do Jogo
+        // Estado do Jogo Expandido
         const gameState = {
-            currentStep: 1,
+            currentPhase: 1,
             isSecure: false,
             hp: 100,
             xp: 0,
             encrypted: false,
             keysExchanged: false,
             timer: null,
-            currentKey: null
+            currentKey: null,
+            urlOrder: [],
+            correctMethods: 0,
+            correctStatusCodes: 0
         };
         
         // Elementos DOM
@@ -703,7 +1109,6 @@
             packet.style.top = startY + 'px';
             document.getElementById('gameWorld').appendChild(packet);
             
-            // Animação
             const duration = 2000;
             const startTime = Date.now();
             
@@ -717,7 +1122,6 @@
                 packet.style.left = currentX + 'px';
                 packet.style.top = currentY + 'px';
                 
-                // Ponto de interceptação (meio do caminho)
                 if (intercepted && progress > 0.4 && progress < 0.6 && !packet.classList.contains('corrupted')) {
                     if (!isEncrypted) {
                         packet.classList.add('corrupted');
@@ -759,12 +1163,12 @@
         
         // Atualizar steps da quest
         function updateQuestSteps() {
-            for (let i = 1; i <= 4; i++) {
+            for (let i = 1; i <= 10; i++) {
                 const step = document.getElementById('step' + i);
                 step.classList.remove('active', 'completed');
-                if (i < gameState.currentStep) {
+                if (i < gameState.currentPhase) {
                     step.classList.add('completed');
-                } else if (i === gameState.currentStep) {
+                } else if (i === gameState.currentPhase) {
                     step.classList.add('active');
                 }
             }
@@ -773,8 +1177,230 @@
         // Iniciar jogo
         function startGame() {
             document.getElementById('tutorial').classList.add('hidden');
-            log('Missão iniciada! Protocolo HTTP detectado.', 'info');
-            showMessage(clientMsg, 'Olá, quero uma conexão...', 3000);
+            log('Jornada HTTP iniciada! Fase 1: O que é HTTP?', 'info');
+            updateQuestSteps();
+            setTimeout(() => {
+                document.getElementById('phase1Modal').classList.add('active');
+            }, 1000);
+        }
+        
+        // FASE 1: O que é HTTP?
+        function checkPhase1Answer(btn, isCorrect) {
+            document.querySelectorAll('#phase1Modal .quiz-option').forEach(b => {
+                b.classList.remove('correct', 'wrong');
+                b.disabled = true;
+            });
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                log('Resposta correta! HTTP = HyperText Transfer Protocol', 'success');
+                gameState.xp += 20;
+                updateHUD();
+                document.getElementById('phase1Next').style.display = 'block';
+            } else {
+                btn.classList.add('wrong');
+                gameState.hp -= 10;
+                updateHUD();
+                log('Resposta incorreta. Tente novamente!', 'error');
+                setTimeout(() => {
+                    document.querySelectorAll('#phase1Modal .quiz-option').forEach(b => {
+                        b.classList.remove('correct', 'wrong');
+                        b.disabled = false;
+                    });
+                }, 1500);
+            }
+        }
+        
+        function completePhase1() {
+            document.getElementById('phase1Modal').classList.remove('active');
+            gameState.currentPhase = 2;
+            updateQuestSteps();
+            log('Fase 1 completa! Iniciando Fase 2: HTTPS', 'success');
+            setTimeout(() => {
+                document.getElementById('phase2Modal').classList.add('active');
+            }, 1000);
+        }
+        
+        // FASE 2: HTTPS
+        let selectedBenefits = [];
+        function toggleBenefit(card, isCorrect) {
+            if (card.classList.contains('selected')) {
+                card.classList.remove('selected');
+                selectedBenefits = selectedBenefits.filter(b => b !== isCorrect);
+            } else {
+                card.classList.add('selected');
+                selectedBenefits.push(isCorrect);
+            }
+        }
+        
+        function checkPhase2() {
+            const correctCount = selectedBenefits.filter(b => b === true).length;
+            const wrongCount = selectedBenefits.filter(b => b === false).length;
+            
+            if (correctCount === 2 && wrongCount === 0) {
+                log('Perfeito! HTTPS oferece Criptografia e Autenticação!', 'success');
+                gameState.xp += 25;
+                updateHUD();
+                document.getElementById('phase2Modal').classList.remove('active');
+                gameState.currentPhase = 3;
+                updateQuestSteps();
+                setTimeout(() => {
+                    document.getElementById('phase3Modal').classList.add('active');
+                }, 1000);
+            } else {
+                log('Selecione apenas os benefícios reais do HTTPS!', 'error');
+                gameState.hp -= 10;
+                updateHUD();
+            }
+        }
+        
+        // FASE 3: Endereços e Domínios
+        function selectUrlPart(part, order) {
+            if (part.classList.contains('correct')) return;
+            
+            const expectedOrder = gameState.urlOrder.length + 1;
+            
+            if (order === expectedOrder) {
+                part.classList.add('correct');
+                gameState.urlOrder.push(order);
+                
+                const progress = document.getElementById('urlProgress');
+                const parts = ['https://', 'www.', 'exemplo', '.com', '/pagina'];
+                progress.textContent = 'Montando: ' + parts.slice(0, gameState.urlOrder.length).join('');
+                
+                if (gameState.urlOrder.length === 5) {
+                    log('URL montada corretamente! https://www.exemplo.com/pagina', 'success');
+                    gameState.xp += 30;
+                    updateHUD();
+                    setTimeout(() => {
+                        document.getElementById('phase3Modal').classList.remove('active');
+                        gameState.currentPhase = 4;
+                        updateQuestSteps();
+                        document.getElementById('phase4Modal').classList.add('active');
+                    }, 1500);
+                }
+            } else {
+                part.classList.add('wrong');
+                setTimeout(() => part.classList.remove('wrong'), 500);
+                gameState.hp -= 5;
+                updateHUD();
+            }
+        }
+        
+        // FASE 4: Cliente-Servidor
+        function checkMethod(btn, method, question) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+            
+            const isCorrect = btn.textContent.includes(method);
+            const feedback = document.getElementById('methodFeedback' + question);
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                feedback.innerHTML = '<span style="color: #00ff88;">✅ Correto!</span>';
+                gameState.correctMethods++;
+                
+                if (gameState.correctMethods === 2) {
+                    document.getElementById('phase4Next').style.display = 'block';
+                    gameState.xp += 25;
+                    updateHUD();
+                }
+            } else {
+                btn.classList.add('wrong');
+                feedback.innerHTML = '<span style="color: #ff4444;">❌ Tente novamente</span>';
+                setTimeout(() => {
+                    parent.querySelectorAll('.quiz-option').forEach(b => {
+                        b.classList.remove('correct', 'wrong');
+                        b.disabled = false;
+                    });
+                    feedback.innerHTML = '';
+                }, 1500);
+            }
+        }
+        
+        function completePhase4() {
+            document.getElementById('phase4Modal').classList.remove('active');
+            gameState.currentPhase = 5;
+            updateQuestSteps();
+            log('Fase 4 completa! Modelo Cliente-Servidor dominado!', 'success');
+            setTimeout(() => {
+                document.getElementById('phase5Modal').classList.add('active');
+            }, 1000);
+        }
+        
+        // FASE 5: Depurando
+        function checkStatusCode(btn, code, question) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+            
+            const isCorrect = btn.textContent.includes(code);
+            const feedback = document.getElementById('statusFeedback' + question);
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                feedback.innerHTML = '<span style="color: #00ff88;">✅ Correto! Código ' + code + '</span>';
+                gameState.correctStatusCodes++;
+                
+                if (gameState.correctStatusCodes === 2) {
+                    document.getElementById('phase5Next').style.display = 'block';
+                    gameState.xp += 30;
+                    updateHUD();
+                }
+            } else {
+                btn.classList.add('wrong');
+                feedback.innerHTML = '<span style="color: #ff4444;">❌ Incorreto</span>';
+                setTimeout(() => {
+                    parent.querySelectorAll('.quiz-option').forEach(b => {
+                        b.classList.remove('correct', 'wrong');
+                        b.disabled = false;
+                    });
+                    feedback.innerHTML = '';
+                }, 1500);
+            }
+        }
+        
+        function completePhase5() {
+            document.getElementById('phase5Modal').classList.remove('active');
+            gameState.currentPhase = 6;
+            updateQuestSteps();
+            log('Fase 5 completa! Depuração HTTP dominada!', 'success');
+            setTimeout(() => {
+                document.getElementById('phase6Modal').classList.add('active');
+            }, 1000);
+        }
+        
+        // FASE 6: Parâmetros
+        function checkQueryString() {
+            const input = document.getElementById('queryInput').value.trim().toLowerCase();
+            const feedback = document.getElementById('queryFeedback');
+            
+            // Aceita: /busca?q=games&ordenar=preco ou variações
+            const isCorrect = input.includes('/busca') && 
+                             input.includes('q=games') && 
+                             input.includes('ordenar=preco');
+            
+            if (isCorrect) {
+                feedback.innerHTML = '<span style="color: #00ff88; font-size: 18px;">✅ Correto! Query string válida!</span>';
+                gameState.xp += 35;
+                updateHUD();
+                setTimeout(() => {
+                    document.getElementById('phase6Modal').classList.remove('active');
+                    gameState.currentPhase = 7;
+                    updateQuestSteps();
+                    log('Fase 6 completa! Parâmetros HTTP dominados!', 'success');
+                    startPracticalPhase();
+                }, 1500);
+            } else {
+                feedback.innerHTML = '<span style="color: #ff4444;">❌ Formato incorreto. Use: /busca?q=games&ordenar=preco</span>';
+                gameState.hp -= 10;
+                updateHUD();
+            }
+        }
+        
+        // FASES PRÁTICAS (7-10) - Baseadas no jogo original
+        function startPracticalPhase() {
+            log('Iniciando fases práticas de segurança...', 'info');
+            showMessage(clientMsg, 'Vamos proteger esta conexão!', 3000);
             
             setTimeout(() => {
                 showMessage(serverMsg, 'Conexão HTTP estabelecida', 3000);
@@ -783,12 +1409,10 @@
             }, 2000);
         }
         
-        // Cenário HTTP (inseguro)
         function startHTTPScenario() {
             hacker.classList.add('hacker-visible');
             log('AVISO: Hacker detectado na rede!', 'error');
             
-            // Enviar pacotes inseguros
             setTimeout(() => {
                 createPacket(
                     client.offsetLeft + 32, 
@@ -807,8 +1431,7 @@
             }, 4000);
         }
         
-        // Iniciar Handshake
-        function startHandshake() {
+        function startHandshakeProcess() {
             document.getElementById('handshakeModal').classList.remove('active');
             document.getElementById('handshakeVisual').classList.add('active');
             
@@ -833,15 +1456,13 @@
             });
         }
         
-        // Completar Handshake
         function completeHandshake() {
             document.getElementById('handshakeVisual').classList.remove('active');
             gameState.isSecure = true;
             gameState.keysExchanged = true;
-            gameState.currentStep = 3;
+            gameState.currentPhase = 8;
             updateQuestSteps();
             
-            // Atualizar UI
             lockIcon.textContent = '🔐';
             lockIcon.classList.remove('locked');
             lockIcon.classList.add('unlocked');
@@ -855,19 +1476,21 @@
             gameState.xp += 30;
             updateHUD();
             
-            setTimeout(startEncryptionChallenge, 2000);
+            setTimeout(() => {
+                gameState.currentPhase = 9;
+                updateQuestSteps();
+                startEncryptionChallenge();
+            }, 2000);
         }
         
-        // Desafio de Criptografia
         function startEncryptionChallenge() {
             document.getElementById('cryptoModal').classList.add('active');
             
             const challengeText = "Mensagem secreta: SENHA123";
-            const encrypted = btoa(challengeText); // Simulação simples de criptografia
+            const encrypted = btoa(challengeText);
             document.getElementById('cryptoChallenge').textContent = 
                 `Dados interceptados: "${encrypted}"\nEscolha a chave correta para descriptografar!`;
             
-            // Configurar timer
             let timeLeft = 10;
             const correctKey = Math.floor(Math.random() * 3) + 1;
             gameState.currentKey = correctKey;
@@ -885,13 +1508,11 @@
             
             gameState.timer = timerInterval;
             
-            // Configurar opções de chave
             document.querySelectorAll('.key-option').forEach((option, index) => {
                 option.onclick = () => checkKey(index + 1, correctKey);
             });
         }
         
-        // Verificar chave
         function checkKey(selected, correct) {
             clearInterval(gameState.timer);
             
@@ -909,10 +1530,9 @@
             }
         }
         
-        // Sucesso na criptografia
         function encryptionSuccess() {
             gameState.encrypted = true;
-            gameState.currentStep = 4;
+            gameState.currentPhase = 10;
             updateQuestSteps();
             gameState.xp += 40;
             updateHUD();
@@ -923,7 +1543,6 @@
             setTimeout(startSecureTransmission, 2000);
         }
         
-        // Falha na criptografia
         function encryptionFailed() {
             document.getElementById('cryptoModal').classList.remove('active');
             gameState.hp -= 30;
@@ -931,15 +1550,13 @@
             log('Tempo esgotado! Vulnerabilidade detectada.', 'error');
             
             setTimeout(() => {
-                startEncryptionChallenge(); // Tentar novamente
+                startEncryptionChallenge();
             }, 2000);
         }
         
-        // Transmissão segura
         function startSecureTransmission() {
             log('Iniciando transmissão segura de dados...', 'info');
             
-            // Enviar múltiplos pacotes criptografados
             let packetCount = 0;
             const interval = setInterval(() => {
                 createPacket(
@@ -958,39 +1575,39 @@
                 }
             }, 1500);
             
-            // Resposta do servidor
             setTimeout(() => {
                 showMessage(serverMsg, 'Dados recebidos com segurança!', 3000);
             }, 2000);
         }
         
-        // Jogo completo
         function gameComplete() {
-            gameState.currentStep = 5;
-            updateQuestSteps();
-            
             const modal = document.createElement('div');
             modal.className = 'modal active';
             modal.innerHTML = `
                 <div class="modal-content">
-                    <div class="modal-title">🎉 MISSÃO CUMPRIDA!</div>
-                    <p>Você protegeu com sucesso a comunicação entre Cliente e Servidor!</p>
-                    <p>HP Final: ${gameState.hp}% | XP Ganho: ${gameState.xp}</p>
-                    <p style="margin: 20px 0; line-height: 1.8;">
-                        ✅ Handshake SSL/TLS estabelecido<br>
-                        ✅ Certificado digital validado<br>
-                        ✅ Criptografia ativada<br>
-                        ✅ Dados protegidos contra hackers
-                    </p>
+                    <div class="modal-title">🎉 JORNADA COMPLETA!</div>
+                    <p>Parabéns! Você dominou os protocolos HTTP e HTTPS!</p>
+                    <p>HP Final: ${gameState.hp}% | XP Total: ${gameState.xp}</p>
+                    <div style="margin: 20px 0; text-align: left; line-height: 2; font-size: 12px;">
+                        ✅ Fase 1: HTTP Fundamentos<br>
+                        ✅ Fase 2: HTTPS e Segurança<br>
+                        ✅ Fase 3: URLs e Domínios<br>
+                        ✅ Fase 4: Cliente-Servidor<br>
+                        ✅ Fase 5: Depuração HTTP<br>
+                        ✅ Fase 6: Parâmetros<br>
+                        ✅ Fase 7: Handshake SSL/TLS<br>
+                        ✅ Fase 8: Certificados Digitais<br>
+                        ✅ Fase 9: Criptografia<br>
+                        ✅ Fase 10: Proteção Final
+                    </div>
                     <button class="btn" onclick="location.reload()">JOGAR NOVAMENTE</button>
                 </div>
             `;
             document.body.appendChild(modal);
             
-            log('MISSÃO CUMPRIDA! Sistema seguro estabelecido.', 'success');
+            log('🎉 JORNADA HTTP COMPLETA! Você é um verdadeiro Guardião da Web!', 'success');
         }
         
-        // Game Over
         function gameOver() {
             const modal = document.createElement('div');
             modal.className = 'modal active';
